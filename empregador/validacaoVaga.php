@@ -1,7 +1,15 @@
-﻿<!DOCTYPE html>
+<?php
+session_start();
+	function __autoload($class_name){
+		require_once 'classes/' . $class_name . '.php';
+	}
+
+?>
+<!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <title>Portal de Vagas &mdash; </title>
+    <title>Cadastro De Vagas &mdash; </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Work+Sans:300,400,700" rel="stylesheet">
@@ -32,6 +40,40 @@
 
         <div class="site-navbar-wrap js-site-navbar bg-white">
             <div class="container">
+              <?php
+              
+
+          		$vaga = new vaga();
+
+          		if(isset($_POST['cadastrar'])):
+
+                $funcao = $_POST["funcao"];
+                $remuneracao = $_POST["remuneracao"];
+                $descricaoVaga = $_POST["descricaoVaga"];
+				$categorias = $_POST["categorias"];
+				$contatoEmail = $_POST["contatoEmail"];
+                $contatoTelefone = $_POST["contatoTelefone"];
+                $idUsuarioVaga = $_SESSION['idUsuario'];
+                
+				$vaga->setCategorias($categorias);
+          		$vaga->setFuncao($funcao);
+                $vaga->setRemuneracao($remuneracao);
+                $vaga->setStatusVaga("Pendente");
+                $vaga->setDescricaoVaga($descricaoVaga);
+				$vaga->setContatoEmail($contatoEmail);
+                $vaga->setContatoTelefone($contatoTelefone);
+                $vaga->setIdUsuarioVaga($idUsuarioVaga);
+                
+
+
+          			# Insert
+          			if($vaga->insert()){
+          				echo "Inserido com sucesso!";
+          			}
+
+          		endif;
+
+          		?>
                 <div class="site-navbar bg-light">
                     <div class="py-1">
                         <div class="row align-items-center">
@@ -45,14 +87,45 @@
                                         <ul class="site-menu js-clone-nav d-none d-lg-block">
 
                                             <li class="has-children">
-                                                <a href=""><span class="bg-primary text-white py-3 px-4 rounded">Cadastrar-se</span></a>
-                                                <ul class="dropdown arrow-top">
-                                                    <li><a href="CandidatoCadastro.html">Candidatos</a></li>
-                                                    <li><a href="EmpregadorCadastro.html">Empregador</a></li>
+                                                <li><a href=""><span class="bg-primary text-white py-3 px-4 rounded">
+																									<?php
 
-                                                </ul>
+																																																		/**/
+																									require_once "classes/DB.php";
+																									require_once "classes/login.php";
+
+
+																									if(isset($_GET['logout'])):
+
+																									        if($_GET['logout']== 'ok'):
+																									           Login::deslogar();
+
+																									    endif;
+
+																									endif;
+
+																									if(isset($_SESSION['logado'])):
+																									    ?>
+
+																									    <!--informo o campo que utilizarei para mostra quem se encontra logado-->
+																									     <?php echo $_SESSION['usuario'];?>
+
+																									    <br />
+
+																									<?php
+
+																									    else:
+																									        echo "Você não esta logado ou Não tem acesso tente novamente";?>
+
+																									        <a href="login.php">Inicio</a>
+																									        <?php
+
+
+																									endif;
+																									?>
+																								</span></a></li>
                                             </li>
-                                            <li><a href="login.php"><span class="bg-primary text-white py-3 px-4 rounded">Entrar</span></a></li>
+                                            <li><a href="logado.php?logout=ok"><span class="bg-primary text-white py-3 px-4 rounded">Sair</span></a></li>
                                         </ul>
                                     </div>
                                 </nav>
@@ -74,54 +147,57 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-10 mx-auto text-center mb-5 section-heading">
-                <h2>Cadastro Candidato</h2>
-                <br>
-                <br>
-                <center>
-                    <form action="ValidacaoCandidato.php" method="POST" enctype="multipart/form-data">
-                        <label for="nome">Nome: </br></label><br>
-                        <input type="text" name="nome" id="nome" required="">
-                        <br />
-                        <label for="documento">CPF: </br></label><br>
-                        <input type="text" name="documento" id="documento" required="">
-                        <br />
-                        <label for="email">Email: </br></label><br>
-                        <input type="email" name="email" id="email" required="">
-                        <br />
+        <div class="validacao">
+<?php
 
-                        <label for="telefone">Telefone 1: </br></label><br>
-                        <input type="text" name="telefone" id="telefone" required="">
-                        <br />
-                        <label for="telefoneOp">Telefone 2: </br></label><br>
-                        <input type="text" name="telefoneOp" id="telefoneOp">
-                        <br />
-                        <label for="senha">Senha: </br></label><br>
-                        <input type="password" name="senha" id="senha" required="">
-                        <br />
+$funcao = $_POST["funcao"];
+$remuneracao = $_POST["remuneracao"];
+$descricaoVaga = $_POST["descricaoVaga"];
+$contatoEmail = $_POST["contatoEmail"];
+$contatoTelefone = $_POST["contatoTelefone"];
+$erro = 0;
 
-                        <label for="sexo">Sexo: </br></label><br>
-                        <select name="sexo" id="sexo">
-                            <option >Masculino </option>
-                            <option>Feminino</option>
-                        </select>
-                        <br />
-                        Selecione o Curriculum: <br><input type="file" name="arquivo" value="Enviar arquivo em PDF">
+//verifica se o campo telefone não está em branco.
+if (preg_match('/^[0-9]{11}$/', $contatoTelefone)):
+else:
+    echo ' <br> Telefone inválido';
+	    $erro =1;
+endif;
 
-                        <div><label for="descricao">Experiências Profissionais: </label></div>
-                        <div>
-                            <textarea rows="5" cols="30" name="descricao" id="descricao" placeholder="Descreva suas Experiências Profissionais.">
+//Verifica se o e-mail é valido.
 
+if(filter_var($contatoEmail, FILTER_VALIDATE_EMAIL)):
+else:
+    echo '<br> E-mail inválido.';
+    $erro =1;
+endif;
 
-              </textarea>
-                        </div>
+//Verifica se a função não está em branco.
+if(empty($funcao))
+{
+    echo "Favor informar a função desejada";
+	$erro =1;
+}
 
-                        <input type="submit" name="cadastrar" value="Cadastrar">
-                        <input type="reset" name="reset" value="Limpar">
-                    </form>
-                </center>
+//Verifica se a reemuneração não está em branco.
+if(empty($remuneracao))
+{
+    echo "Favor informar a remuneração  da vaga";
+	$erro =1;
+}
+//Verifica se a descrição não está em branco.
+if(empty($descricaoVaga))
+{
+    echo "Favor descrever a função";
+	$erro =1;
+}
+if ($erro == 0){
+    echo 'Cadastro Criando com sucesso';
+}
+else{}
+?>
             </div>
+
 
             <script src="js/jquery-3.3.1.min.js"></script>
             <script src="js/jquery-migrate-3.0.1.min.js"></script>

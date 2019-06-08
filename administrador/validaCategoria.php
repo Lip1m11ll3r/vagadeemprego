@@ -1,5 +1,12 @@
-﻿<!DOCTYPE html>
+<?php
+	function __autoload($class_name){
+		require_once 'classes/' . $class_name . '.php';
+	}
+
+?>
+<!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <title>Portal de Vagas &mdash; </title>
     <meta charset="utf-8">
@@ -32,11 +39,32 @@
 
         <div class="site-navbar-wrap js-site-navbar bg-white">
             <div class="container">
+              <?php
+
+          		$categoria = new categoria();
+
+          		if(isset($_POST['cadastrar'])):
+
+                $nomeCategoria = $_POST["nomeCategoria"];
+
+
+
+          			$categoria->setNomeCategoria($nomeCategoria);
+
+echo $nomeCategoria;
+          			# Insert
+          			if($categoria->insert()){
+
+          			}
+
+          		endif;
+
+          		?>
                 <div class="site-navbar bg-light">
                     <div class="py-1">
                         <div class="row align-items-center">
                             <div class="col-2">
-                                <h2 class="mb-0 site-logo"><a href="index.php">Vagas<strong class="font-weight-bold">Emprego</strong> </a></h2>
+                                <h2 class="mb-0 site-logo"><a href="index.html">Vagas<strong class="font-weight-bold">Emprego</strong> </a></h2>
                             </div>
                             <div class="col-10">
                                 <nav class="site-navigation text-right" role="navigation">
@@ -74,54 +102,29 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-10 mx-auto text-center mb-5 section-heading">
-                <h2>Cadastro Candidato</h2>
-                <br>
-                <br>
-                <center>
-                    <form action="ValidacaoCandidato.php" method="POST" enctype="multipart/form-data">
-                        <label for="nome">Nome: </br></label><br>
-                        <input type="text" name="nome" id="nome" required="">
-                        <br />
-                        <label for="documento">CPF: </br></label><br>
-                        <input type="text" name="documento" id="documento" required="">
-                        <br />
-                        <label for="email">Email: </br></label><br>
-                        <input type="email" name="email" id="email" required="">
-                        <br />
-
-                        <label for="telefone">Telefone 1: </br></label><br>
-                        <input type="text" name="telefone" id="telefone" required="">
-                        <br />
-                        <label for="telefoneOp">Telefone 2: </br></label><br>
-                        <input type="text" name="telefoneOp" id="telefoneOp">
-                        <br />
-                        <label for="senha">Senha: </br></label><br>
-                        <input type="password" name="senha" id="senha" required="">
-                        <br />
-
-                        <label for="sexo">Sexo: </br></label><br>
-                        <select name="sexo" id="sexo">
-                            <option >Masculino </option>
-                            <option>Feminino</option>
-                        </select>
-                        <br />
-                        Selecione o Curriculum: <br><input type="file" name="arquivo" value="Enviar arquivo em PDF">
-
-                        <div><label for="descricao">Experiências Profissionais: </label></div>
-                        <div>
-                            <textarea rows="5" cols="30" name="descricao" id="descricao" placeholder="Descreva suas Experiências Profissionais.">
+        <div class="validacao">
+<?php
 
 
-              </textarea>
-                        </div>
+$nome = $_POST["nomeCategoria"];
 
-                        <input type="submit" name="cadastrar" value="Cadastrar">
-                        <input type="reset" name="reset" value="Limpar">
-                    </form>
-                </center>
+$erro = 0;
+
+//Verifica se o campo nome não está em branco.
+if(empty($nome))
+{
+    echo "Favor digitar um nome para categoria";
+	$erro =1;
+}
+
+if ($erro == 0){
+    echo 'Categoria Crianda com sucesso';
+    
+}
+else{}
+?>
             </div>
+
 
             <script src="js/jquery-3.3.1.min.js"></script>
             <script src="js/jquery-migrate-3.0.1.min.js"></script>

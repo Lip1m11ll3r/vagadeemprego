@@ -1,4 +1,15 @@
-﻿<!DOCTYPE html>
+<?php
+	function __autoload($class_name){
+		require_once 'classes/' . $class_name . '.php';
+	}
+
+?>
+<html>
+<body>
+
+</body>
+</html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <title>Portal de Vagas &mdash; </title>
@@ -36,7 +47,7 @@
                     <div class="py-1">
                         <div class="row align-items-center">
                             <div class="col-2">
-                                <h2 class="mb-0 site-logo"><a href="index.php">Vagas<strong class="font-weight-bold">Emprego</strong> </a></h2>
+                                <h2 class="mb-0 site-logo"><a href="index.html">Vagas<strong class="font-weight-bold">Emprego</strong> </a></h2>
                             </div>
                             <div class="col-10">
                                 <nav class="site-navigation text-right" role="navigation">
@@ -45,14 +56,14 @@
                                         <ul class="site-menu js-clone-nav d-none d-lg-block">
 
                                             <li class="has-children">
-                                                <a href=""><span class="bg-primary text-white py-3 px-4 rounded">Cadastrar-se</span></a>
+                                                <a href="new-post.html"><span class="bg-primary text-white py-3 px-4 rounded">Cadastrar-se</span></a>
                                                 <ul class="dropdown arrow-top">
                                                     <li><a href="CandidatoCadastro.html">Candidatos</a></li>
                                                     <li><a href="EmpregadorCadastro.html">Empregador</a></li>
 
                                                 </ul>
                                             </li>
-                                            <li><a href="login.php"><span class="bg-primary text-white py-3 px-4 rounded">Entrar</span></a></li>
+                                            <li><a href="login.html"><span class="bg-primary text-white py-3 px-4 rounded">Entrar</span></a></li>
                                         </ul>
                                     </div>
                                 </nav>
@@ -65,6 +76,42 @@
         <div style="height: 113px;"></div>
         <div class="site-blocks-cover overlay" style="background-image: url('images/hero_1.jpg');" data-aos="fade" data-stellar-background-ratio="0.5">
             <div class="container">
+              <?php
+
+          		$usuario = new Usuarios();
+
+          		if(isset($_POST['cadastrar'])):
+
+                $nome = $_POST["nome"];
+                $documento = $_POST["documento"];
+                $email = $_POST["email"];
+                $telefone = $_POST["telefone"];
+                $telefoneOp = $_POST["telefoneOp"];
+                $senha = $_POST["senha"];
+
+                $descricao = $_POST["descricao"];
+
+
+
+          			$usuario->setNome($nome);
+                $usuario->setDocumento($documento);
+                $usuario->setEmail($email);
+                $usuario->setSenha($senha);
+              	$usuario->setTelefone($telefone);
+              	$usuario->setTelefoneOp($telefoneOp);
+								$usuario->setTipoConta("E");
+            	  $usuario->setDescricao($descricao);
+								$usuario->setStatusConta("Pendente");
+
+
+          			# Insert
+          			if($usuario->insert()){
+          				echo "Inserido com sucesso!";
+          			}
+
+          		endif;
+
+          		?>
                 <div class="row align-items-center">
                     <div class="site-section">
                         <div class="container">
@@ -74,54 +121,71 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-10 mx-auto text-center mb-5 section-heading">
-                <h2>Cadastro Candidato</h2>
-                <br>
-                <br>
-                <center>
-                    <form action="ValidacaoCandidato.php" method="POST" enctype="multipart/form-data">
-                        <label for="nome">Nome: </br></label><br>
-                        <input type="text" name="nome" id="nome" required="">
-                        <br />
-                        <label for="documento">CPF: </br></label><br>
-                        <input type="text" name="documento" id="documento" required="">
-                        <br />
-                        <label for="email">Email: </br></label><br>
-                        <input type="email" name="email" id="email" required="">
-                        <br />
+        <div class="validacao">
+<?php
+include "ValidacaoDocumento.php";
 
-                        <label for="telefone">Telefone 1: </br></label><br>
-                        <input type="text" name="telefone" id="telefone" required="">
-                        <br />
-                        <label for="telefoneOp">Telefone 2: </br></label><br>
-                        <input type="text" name="telefoneOp" id="telefoneOp">
-                        <br />
-                        <label for="senha">Senha: </br></label><br>
-                        <input type="password" name="senha" id="senha" required="">
-                        <br />
+$nome = $_POST["nome"];
+$documento = $_POST["documento"];
+$email = $_POST["email"];
+$telefone = $_POST["telefone"];
+$telefoneOp = $_POST["telefoneOp"];
+$senha = $_POST["senha"];
 
-                        <label for="sexo">Sexo: </br></label><br>
-                        <select name="sexo" id="sexo">
-                            <option >Masculino </option>
-                            <option>Feminino</option>
-                        </select>
-                        <br />
-                        Selecione o Curriculum: <br><input type="file" name="arquivo" value="Enviar arquivo em PDF">
+$descricao = $_POST["descricao"];
+$erro = 0;
 
-                        <div><label for="descricao">Experiências Profissionais: </label></div>
-                        <div>
-                            <textarea rows="5" cols="30" name="descricao" id="descricao" placeholder="Descreva suas Experiências Profissionais.">
+//Verifica se o campo nome não está em branco.
+if(empty($nome))
+{
+    echo "Favor digitar seu nome";
+	$erro =1;
+}
+
+//verifica se o campo telefone não está em branco.
+if (preg_match('/^[0-9]{11}$/', $telefone)):
+else:
+    echo ' <br> Telefone inválido';
+    $erro =1;
+endif;
+
+//verifica se o campo telefone 2 esta  digitado corretamente.
+if (!empty($telefoneOp) or preg_match('/^[0-9]{11}$/', $telefoneOp)):
+    $erro =1;
+
+endif;
+
+//Verifica se o e-mail é valido.
+
+if(filter_var($email, FILTER_VALIDATE_EMAIL)):
+else:
+    echo '<br> E-mail inválido.';
+    $erro =1;
+endif;
+
+$descricao = strip_tags($descricao);
+
+if(CNPJValido($documento)):
+else:
+  echo 'CNPJ invalido.';
+  $erro = 1;
+endif;
+
+if ( strlen( $senha ) < 8 ) {
+echo '<br> Mínimo de 8 digitos.';
+$erro = 1;
+}
 
 
-              </textarea>
-                        </div>
+if ($erro == 0){
+    echo 'Cadastro Enviado para aprovação Da administração';
+}
+else{}
 
-                        <input type="submit" name="cadastrar" value="Cadastrar">
-                        <input type="reset" name="reset" value="Limpar">
-                    </form>
-                </center>
+?>
+
             </div>
+
 
             <script src="js/jquery-3.3.1.min.js"></script>
             <script src="js/jquery-migrate-3.0.1.min.js"></script>
